@@ -30,8 +30,8 @@ void RootSignature::Create() {
 	rootSignature_ = rootSignature;
 }
 
-Microsoft::WRL::ComPtr<ID3D12RootSignature> RootSignature::Get() {
-	return rootSignature_; }
+ID3D12RootSignature* RootSignature::Get() {
+	return rootSignature_.Get(); }
 
 
 RootSignature::RootSignature() {

@@ -1,3 +1,4 @@
+#include "IndexBuffer.h"
 #include "KamataEngine.h"
 #include "PipelineState.h"
 #include "RootSignature.h"
@@ -39,7 +40,7 @@ void SetupPipelineState(PipelineState& pipelineState, RootSignature& rs, Shader&
 
 	// PSO(PipelineStateObject)の作成 -----------
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateDesc{};
-	graphicsPipelineStateDesc.pRootSignature = rs.Get().Get();                                              // RootSignature
+	graphicsPipelineStateDesc.pRootSignature = rs.Get();                                              // RootSignature
 	graphicsPipelineStateDesc.InputLayout = inputLayoutDesc;                                                // InputLayout
 	graphicsPipelineStateDesc.VS = {vs.GetDxcBlob()->GetBufferPointer(), vs.GetDxcBlob()->GetBufferSize()}; // VertexShader
 	graphicsPipelineStateDesc.PS = {ps.GetDxcBlob()->GetBufferPointer(), ps.GetDxcBlob()->GetBufferSize()}; // PixelShader
@@ -78,8 +79,6 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	RootSignature rs;
 	rs.Create();
 
-
-
 	// 頂点シェイダーの読み込みとコンパイル
 	Shader vs;
 	vs.LoadDxc(L"Resources/shaders/TestVS.hlsl", L"vs_6_0");
@@ -90,31 +89,55 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	ps.LoadDxc(L"Resources/shaders/TestPS.hlsl", L"ps_6_0");
 	assert(ps.GetDxcBlob() != nullptr);
 
-
-
 	PipelineState pipelineState;
 	SetupPipelineState(pipelineState, rs, vs, ps);
 
+	// リソースの確保含め、頂点情報を柔軟に対応できるようにVertexData構造体を新たに作成する
+	// Vertex4 ⇒ VertexDate に変更して利用する
+	struct VertexData {
+		Vector4 pos;
+	};
 
+	// 頂点データの準備
+	VertexData vertices[] = {
+	    {-1.0f, 1.0f,  0.0f, 1.0f}, // 左上
+	    {1.0f,  1.0f,  0.0f, 1.0f}, // 右上
+	    {-1.0f, -1.0f, 0.0f, 1.0f}, // 左下
+	    {1.0f,  -1.0f, 0.0f, 1.0f}, // 右下
+	};
+
+	uint16_t indices[] = {
+	    0, 1, 2,
+		1, 3, 2,
+	};
+	// IndexBuffer(IndexResource, IndexResourceView)の生成
+	IndexBuffer ib;
+	ib.Create(sizeof(indices), sizeof(indices[0]));
+
+	// 頂点リソースにデータを書き込む -----------
+	uint16_t* pGpuIndices = nullptr;
+	ib.Get()->Map(0, nullptr, reinterpret_cast<void**>(&pGpuIndices));
+
+	for (int i = 0; i < _countof(indices); ++i) {
+		pGpuIndices[i] = indices[i];
+	}
 
 	// VertexBuffer(VertexResource, VertexResourceView)の生成
 	VertexBuffer vb;
-	vb.Create(sizeof(Vector4) * 3, sizeof(Vector4));
+	vb.Create(sizeof(vertices) * 3, sizeof(vertices[0]));
 
 	// 頂点リソースにデータを書き込む -----------
-	Vector4* vertexData = nullptr;
-	vb.Get()->Map(0, nullptr, reinterpret_cast<void**>(&vertexData));
-	vertexData[0] = {-0.5f, -0.5f, 0.0f, 1.0f}; // 左下
-	vertexData[1] = {0.0f, 0.5f, 0.0f, 1.0f};   // 上
-	vertexData[2] = {0.5f, -0.5f, 0.0f, 1.0f};  // 右下
-	//// 頂点リソースのマップを解除
-	//vertexResource->Unmap(0, nullptr);
+	VertexData* pGpuVertices = nullptr;
+	vb.Get()->Map(0, nullptr, reinterpret_cast<void**>(&pGpuVertices));
+
+	for (int i = 0; i < _countof(vertices); ++i) {
+		pGpuVertices[i] = vertices[i];
+	}
 
 	// メインループ
 	while (true) {
 		// エンジンの更新
 		if (Update()) {
-
 			break;
 		}
 
@@ -124,13 +147,15 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		// ここに描画処理を記述する
 
 		// コマンドを積む
-		commandList->SetGraphicsRootSignature(rs.Get().Get());    // RootSignatureの設定
-		commandList->SetPipelineState(pipelineState.Get().Get());       // PSOの設定をする
-		commandList->IASetVertexBuffers(0, 1, vb.GetView()); // VBVの設定をする
+		commandList->SetGraphicsRootSignature(rs.Get());    // RootSignatureの設定
+		commandList->SetPipelineState(pipelineState.Get()); // PSOの設定をする
+		commandList->IASetVertexBuffers(0, 1, vb.GetView());      // VBVの設定をする
+		commandList->IASetIndexBuffer(ib.GetView());              // IBVの設定をする
 		// トポロジの設定
 		commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		// 頂点数、インスタンス数、インデックスの開始位置、インデックスのオフセット
-		commandList->DrawInstanced(3, 1, 0, 0);
+		//// 頂点数、インスタンス数、インデックスの開始位置、インデックスのオフセット
+		// commandList->DrawInstanced(3, 1, 0, 0);
+		commandList->DrawIndexedInstanced(_countof(indices), 1, 0, 0, 0);
 
 		// 描画終了
 		dxCommon->PostDraw();

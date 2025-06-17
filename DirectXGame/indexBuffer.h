@@ -1,21 +1,22 @@
 #pragma once
-#include<d3d12.h>
+#include <d3dx12.h> // ID3D12Resource,D3D12_INDEX_BUFFER_VIEW
+#include <wrl.h>
+
 class IndexBuffer {
 public:
-	//indexBufferの生成
+	// VertexBuffer生成
 	void Create(const UINT size, const UINT stride);
 
-	//ゲッター
-	ID3D12Resource* Get();
-	D3D12_INDEX_BUFFER_VIEW* GetView();
+	// ゲッター
+	Microsoft::WRL::ComPtr<ID3D12Resource> Get(); // インデックスバッファー
+	D3D12_INDEX_BUFFER_VIEW* GetView();           // インデックスバッファービュー
 
-	//コンストラクタ
+	// コンストラクタ
 	IndexBuffer();
-	//デストラクタ
+	// デストラクタ
 	~IndexBuffer();
 
 private:
-	ID3D12Resource* indexBuffer_ = nullptr; // インデックスバッファ
-	D3D12_INDEX_BUFFER_VIEW indexBufferView_{};  //インデックスバッファビュー
-
+	Microsoft::WRL::ComPtr<ID3D12Resource> indexBuffer_ = nullptr; // インデックスバッファ
+	D3D12_INDEX_BUFFER_VIEW indexBufferView_{};                  // インデックスバッファビュー
 };

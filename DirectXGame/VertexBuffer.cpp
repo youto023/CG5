@@ -3,6 +3,7 @@
 
 #include <cassert>
 #include <d3dx12.h>
+#include "IndexBuffer.h"
 
 using namespace KamataEngine;
 
@@ -17,7 +18,7 @@ void VertexBuffer::Create(const UINT size, const UINT stride) {
 	// 頂点リソースの設定
 	D3D12_RESOURCE_DESC vertexResourceDesc{};
 	vertexResourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER; // バッファ
-	vertexResourceDesc.Width = sizeof(Vector4) * 3;                 // リソースのサイズ。今回はVector4を3頂点分
+	vertexResourceDesc.Width = size;                 // リソースのサイズ。今回はVector4を3頂点分
 	// バッファの場合はこれらは1にする決まり
 	vertexResourceDesc.Height = 1;
 	vertexResourceDesc.DepthOrArraySize = 1;
@@ -49,13 +50,14 @@ void VertexBuffer::Create(const UINT size, const UINT stride) {
 	vertexBufferView_ = vertexBufferView;
 }
 
-Microsoft::WRL::ComPtr<ID3D12Resource> VertexBuffer::Get() {
-	return vertexBuffer_;
+ID3D12Resource* VertexBuffer::Get() {
+	return vertexBuffer_.Get();
 }
 
 D3D12_VERTEX_BUFFER_VIEW* VertexBuffer::GetView() {
-	return &vertexBufferView_;
-}
+	return &vertexBufferView_; }
+
+
 
 VertexBuffer::VertexBuffer() {}
 
