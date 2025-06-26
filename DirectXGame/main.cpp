@@ -61,7 +61,45 @@ void SetupPipelineState(PipelineState& pipelineState, RootSignature& rs, Shader&
 	graphicsPipelineStateDesc.SampleMask = D3D12_DEFAULT_SAMPLE_MASK;
 	// 準備は整ったので、PSOを作成する
 	pipelineState.Create(graphicsPipelineStateDesc);
-}
+
+	// 関数プロトタイプ宣言
+	//   PipelineStateeObjectを生成する
+	void SetupPipelineState(PipelineState & pipelineState, RootSignature & rs, Shader & vs, Shader ps);
+
+	// RenderTextureResourceの生成
+	ID3D12Resource* CeateRenderTextureResource(ID3D12Device * device, uint32_t width, uint32_t height, DXGI_FORMAT format, const FLOAT* clearColor) {
+		// 1.生成するRenderTextureResourceの　Descの設定
+		D3D12_RESOURCE_DESC resourceDesc = {};
+		resourceDesc.Width = UINT(width)                              // RenderTexturの幅
+		                     resourceDesc.Height = UINT(height);      // Textureの高さ
+		resourceDesc.MipLevels = 1;                                   // mipmapの数
+		resourceDesc.DepthOrArraySize = 1;                            // 奥行or配列Textureの配列数
+		resourceDesc.Format = DXGI_FOMAT_R8G8B8A8_UNORM_SRGB;         // TextureのFormat
+		resourceDesc.SampleDesc.Count = 1;                            // サンプリングカウント　１固定
+		resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;  // Textureの時限数。普段使っているもの
+		resourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET; // RenderTargetとして使う通知
+		// 2. 利用するHeapの設定
+		D3D12_HEAP_PROPERTIES heapProperties = {};
+		heapProperties.Type = D3D12_HEAP_TYPE_DEFAULT; // VPAM上に作る
+
+		// 3. ClaarValueの用意
+		D3D12_CLEAR_VALUE clearValue;
+		clearValue.Format = clearFormat;
+		clearValue.Color[0] = clearColor[0];
+		clearValue.Color[1] = clearColor[1];
+		clearValue.Color[2] = clearColor[2];
+		clearValue.Color[3] = clearColor[3];
+		// 4. RenderTextureResourceの生成
+		ID3D12Resource* resource = nullptr;
+		HRESULT hr = device->CreateCommittedResource(
+		    &heapProperties,                            // ヒープのプロパティ
+		    D3D12_HEAP_FLAG_NONE,                       // ヒープのフラグ
+		    &resourceDesc,                              // リソースの記述
+		    D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, // 初期状態
+		    &clearValue,                                // クリア値
+		    IID_PPV_ARGS(&resource));
+	// 作成したリソースを受け取る
+	}
 
 // Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
@@ -95,7 +133,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
 	PipelineState pipelineState;
 	SetupPipelineState(pipelineState, rs, vs, ps);
-
+ 
 	// リソースの確保含め、頂点情報を柔軟に対応できるようにVertexData構造体を新たに作成する
 	// Vertex4 ⇒ VertexDate に変更して利用する
 	struct VertexData {
