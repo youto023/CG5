@@ -1,21 +1,18 @@
 #pragma once
-#include <wrl.h>
-#include <d3dx12.h> // ID3D12RootSignature
+#include<d3dx12.h>//ID3D12RootSignature
 
-class RootSignature {
+class RootSignature 
+{
 public:
-	// 生成
+	//生成
 	void Create();
-
-	// ゲッター
+	//ゲッター
 	ID3D12RootSignature* Get();
-
-
-	// コンストラクタ
+	//コンストラクタ
 	RootSignature();
-	// デストラクタ
+	//デストラクタ
 	~RootSignature();
 
 private:
-	Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature_ = nullptr;
+	ID3D12RootSignature* rootSignature_ = nullptr;
 };

@@ -1,11 +1,10 @@
 #pragma once
-#include <string> // string, wstring
-
+#include <string> //wstring,string
 class MiscUtility {
 public:
-	// string => wstring 文字列変換
+	// string=>wstring　文字列変換
 	std::wstring ConvertString(const std::string& str);
-	// wstring => string 文字列変換
-	std::string ConvertString(const std::wstring& str);
 
+	// wstring=>string　文字列変換
+	static std::string ConvertString(const std::wstring& str);
 };

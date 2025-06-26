@@ -1,20 +1,20 @@
 #pragma once
-#include <wrl.h>
-#include <d3d12.h> // ID3D12PipelineState
+#include<d3dx12.h>//ID3D12RootSignature
 
-class PipelineState {
+class PipelineState 
+{
 public:
-	// 初期化
+	//初期化
 	void Create(D3D12_GRAPHICS_PIPELINE_STATE_DESC desc);
-	// ゲッター
+	//ゲッター
 	ID3D12PipelineState* Get();
-
-	// コンストラクタ
+	//コンストラクタ
 	PipelineState();
-	// デストラクタ
+	
+	//デストラクタ
 	~PipelineState();
 
 private:
-	// パイプラインステート
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> pipelineState_ = nullptr;
+	//パイプラインステート
+	ID3D12PipelineState* pipelineState_ = nullptr;
 };

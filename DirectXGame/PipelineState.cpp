@@ -1,26 +1,38 @@
 #include "PipelineState.h"
-#include "KamataEngine.h"
+#include"KamataEngine.h"
 
 using namespace KamataEngine;
 
-void PipelineState::Create(D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateDesc) {
-	// クラス内で取得するために追加
+//PipelineStateを生成する
+void PipelineState::Create(D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateDesc)
+{
+	//クラス内で取得する為に追加
 	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
-
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineState = nullptr;
-	HRESULT hr = dxCommon->GetDevice()->CreateGraphicsPipelineState(&graphicsPipelineStateDesc, IID_PPV_ARGS(&graphicsPipelineState));
+	
+	ID3D12PipelineState* graphicsPipeLineState = nullptr;
+	HRESULT hr = dxCommon->GetDevice()->CreateGraphicsPipelineState(
+	&graphicsPipelineStateDesc,IID_PPV_ARGS(&graphicsPipeLineState));
 	assert(SUCCEEDED(hr));
 
-	// 生成したpipelineStateを取っておく
-	pipelineState_ = graphicsPipelineState;
-
+	//生成したPipelineStateを取っておく
+	pipelineState_ = graphicsPipeLineState;
 }
 
-ID3D12PipelineState* PipelineState::Get() {
-	return pipelineState_.Get();
+//生成したPipelineStateを探す
+ID3D12PipelineState* PipelineState::Get()
+{
+	return pipelineState_;
 }
 
+//コンストラクタ
 PipelineState::PipelineState() {}
 
-PipelineState::~PipelineState() {
+//デストラクタ
+PipelineState::~PipelineState()
+{
+	if (pipelineState_)
+	{
+		pipelineState_->Release();
+		pipelineState_ = nullptr;
+	}
 }
