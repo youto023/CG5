@@ -207,6 +207,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	camera.Initialize();
 	camera.translation_ = Vector3(0.0f, 1.0f, 0.0f); // カメラの位置
 
+
 	// メインループ
 	while (true) {
 		// エンジンの更新
