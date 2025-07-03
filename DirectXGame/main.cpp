@@ -194,18 +194,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	    rtvHandleCPU           // RTV用ディスクリプタヒープのCPU Handle
 	);
 
-	//アプリで利用する3Dモデル＝＝＝＝＝＝＝＝＝★00_10追加
-	//被写体の準備
-	Model* model = Model::CreateFromOBJ("terrain");
-
-	WorldTransformEX worldTransform; 
-	worldTransform.Initialize(); 
-	worldTransform.scale_ = Vector3(1.0f, 1.0f, 1.0f);
-
-	//カメラの準備
-	Camera camera;
-	camera.Initialize();
-	camera.translation_ = Vector3(0.0f, 1.0f, 0.0f); // カメラの位置
+	
 
 	// メインループ
 	while (true) {
