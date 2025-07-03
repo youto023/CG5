@@ -6,7 +6,7 @@
 #include "Shader.h"
 #include "VertexBuffer.h"
 #include <Windows.h>
-#include"WorldTransformEX.h"
+
 // #include<d3dcompiler.h>
 // グローバル関数
 using namespace KamataEngine;
