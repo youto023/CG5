@@ -1,7 +1,7 @@
 #include "RootSignature.h"
 #include"KamataEngine.h"//DirectXCommon
 #include "PipelineState.h"
-
+#include"cassert"
 using namespace KamataEngine;
 
 //RootSignatureを生成する

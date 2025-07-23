@@ -7,6 +7,7 @@
 #include "VertexBuffer.h"
 #include <Windows.h>
 #include "WorldTransformEx.h"
+#include"cassert"
 // #include<d3dcompiler.h>
 // グローバル関数
 using namespace KamataEngine;
@@ -400,7 +401,7 @@ ID3D12Resource* CreateRenderTextureResource(ID3D12Device* device, uint32_t width
 
 	// 4.RenderTextureResourceの生成
 	ID3D12Resource* resource = nullptr;
-	HRESULT hr = device->CreateCommittedResource(
+	[[maybe_unused]]HRESULT hr = device->CreateCommittedResource(
 	    &heapProperties,                            // Heapの設定
 	    D3D12_HEAP_FLAG_NONE,                       // Heapの特殊な設定
 	    &resourceDesc,                              // Resourceの設定
@@ -436,7 +437,7 @@ ID3D12Resource* CreateDepthStencilTextureResource(ID3D12Device* device, int32_t 
 
 	// 3.Resourceの生成
 	ID3D12Resource* resource = nullptr;
-	HRESULT hr = device->CreateCommittedResource(
+	[[maybe_unused]] HRESULT hr = device->CreateCommittedResource(
 	    &heapProperties,                  // Heapの設定
 	    D3D12_HEAP_FLAG_NONE,             // Heapの特殊な設定　★後で変更？
 	    &resourceDesc,                    // Resourceの設定
